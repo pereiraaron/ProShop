@@ -10,7 +10,7 @@ const Footer = () => {
         }}
       >
         {" "}
-        Copyright &copy; ItShop
+        Copyright &copy; PROSHOP
       </Navbar.Brand>
     </Navbar>
   );
