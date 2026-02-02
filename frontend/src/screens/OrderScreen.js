@@ -65,7 +65,7 @@ const OrderScreen = ({ history, match }) => {
         setSDKReady(true);
       }
     }
-  }, [dispatch, orderId, successPay, successDeliver, order, userInfo, history]);
+  }, [dispatch, orderId, successPay, successDeliver, order, userInfo, history, url]);
 
   if (!loading) {
     const addDecimals = (num) => {

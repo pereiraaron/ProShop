@@ -74,3 +74,5 @@ app.listen(
     `Server Running in ${process.env.NODE_ENV} mode on port ${port}`.yellow.bold
   )
 );
+
+export default app;
