@@ -1,5 +1,6 @@
 {
-  "name": "itshop",
+  "name": "proshop",
+  "author": "Aron Pereira",
   "version": "1.0.0",
   "type": "module",
   "description": "",
@@ -12,21 +13,21 @@
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.3",
     "colors": "^1.4.0",
-    "cors": "^2.8.5",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "express-async-handler": "^1.1.4",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.13.7",
-    "morgan": "^1.10.0",
-    "multer": "^1.4.3"
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-async-handler": "^1.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.2.3",
+    "morgan": "^1.10.1",
+    "multer": "^2.1.0",
+    "swagger-jsdoc": "^6.2.8"
   },
   "devDependencies": {
-    "nodemon": "^2.0.12"
+    "nodemon": "^3.1.14"
   }
 }

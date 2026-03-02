@@ -35,8 +35,30 @@ const upload = multer({
   },
 });
 
+/**
+ * @swagger
+ * /api/upload:
+ *   post:
+ *     summary: Upload an image
+ *     tags: [Upload]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Image uploaded
+ */
 router.post("/", upload.single("image"), (req, res) => {
-  res.send(`/${req.file.path}`);
+  res.json({ image: `/${req.file.path}` });
 });
 
 export default router;
