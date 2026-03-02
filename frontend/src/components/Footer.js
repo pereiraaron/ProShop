@@ -10,7 +10,7 @@ const Footer = () => {
         }}
       >
         {" "}
-        Copyright &copy; PROSHOP
+        Copyright &copy; 2021 PROSHOP
       </Navbar.Brand>
     </Navbar>
   );

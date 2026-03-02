@@ -1,7 +1,8 @@
 {
-  "name": "itshop",
+  "name": "proshop-frontend",
   "version": "0.1.0",
   "private": true,
+  "author": "Aron Pereira",
   "dependencies": {
     "axios": "^0.21.1",
     "react": "^17.0.2",
