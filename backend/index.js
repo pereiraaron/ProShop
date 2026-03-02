@@ -10,6 +10,7 @@ import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+import swaggerSpec from "./config/swagger.js";
 
 //Config and Connect DB
 dotenv.config();
@@ -37,30 +38,33 @@ app.use("/api/orders", orderRoutes);
 //Upload Routes
 app.use("/api/upload", uploadRoutes);
 
+//Swagger Docs
+app.get("/api/docs/spec.json", (_req, res) => {
+  res.json(swaggerSpec);
+});
+app.get("/api/docs", (_req, res) => {
+  res.send(`<!DOCTYPE html>
+<html><head>
+<title>ProShop API</title>
+<link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+</head><body>
+<div id="swagger-ui"></div>
+<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+<script>SwaggerUIBundle({url:"/api/docs/spec.json",dom_id:"#swagger-ui"})</script>
+</body></html>`);
+});
+
 //Config Route
-app.get("/api/config/paypal", (req, res) =>
+app.get("/api/config/paypal", (_req, res) =>
   res.send(process.env.PAYPAL_CLIENT_ID)
 );
 
-app.get("/", (req, res) => {
-  res.send("Api Is Running");
+app.get("/", (_req, res) => {
+  res.json({
+    status: "ok",
+    message: "ProShop API is running",
+  });
 });
-
-// //Make upload folder static
-// const __dirname = path.resolve();
-// app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
-
-// if (process.env.NODE_ENV === "production") {
-//   app.use(express.static(path.join(__dirname, "/frontend/build")));
-//   app.get("*", (req, res) => {
-//     res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"));
-//   });
-// } else {
-//   //Default Route
-//   app.get("/", (req, res) => {
-//     res.send("Api Is Running");
-//   });
-// }
 
 //Use CustomMiddleware
 app.use(notFound);
@@ -68,11 +72,14 @@ app.use(errorHandler);
 
 const port = process.env.PORT || 5000;
 
-app.listen(
-  port,
-  console.log(
-    `Server Running in ${process.env.NODE_ENV} mode on port ${port}`.yellow.bold
-  )
-);
+if (process.env.NODE_ENV !== "production") {
+  app.listen(
+    port,
+    console.log(
+      `Server Running in ${process.env.NODE_ENV} mode on port ${port}`.yellow
+        .bold
+    )
+  );
+}
 
 export default app;

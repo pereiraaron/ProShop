@@ -10,10 +10,176 @@ import {
 import { isAdmin, protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/orders:
+ *   post:
+ *     summary: Create a new order
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - orderItems
+ *               - shippingAddress
+ *               - paymentMethod
+ *               - itemsPrice
+ *               - taxPrice
+ *               - shippingPrice
+ *               - totalPrice
+ *             properties:
+ *               orderItems:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                     qty:
+ *                       type: number
+ *                     image:
+ *                       type: string
+ *                     price:
+ *                       type: number
+ *                     product:
+ *                       type: string
+ *               shippingAddress:
+ *                 type: object
+ *                 properties:
+ *                   address:
+ *                     type: string
+ *                   city:
+ *                     type: string
+ *                   postalcode:
+ *                     type: string
+ *                   country:
+ *                     type: string
+ *               paymentMethod:
+ *                 type: string
+ *               itemsPrice:
+ *                 type: number
+ *               taxPrice:
+ *                 type: number
+ *               shippingPrice:
+ *                 type: number
+ *               totalPrice:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Order created
+ *       400:
+ *         description: No order items
+ *   get:
+ *     summary: Get all orders (Admin)
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all orders
+ */
 router.route("/").post(protect, addOrderItems).get(protect, isAdmin, getOrders);
+
+/**
+ * @swagger
+ * /api/orders/myorders:
+ *   get:
+ *     summary: Get logged in user's orders
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User's orders
+ */
 router.route("/myorders").get(protect, getMyOrders);
+
+/**
+ * @swagger
+ * /api/orders/{id}:
+ *   get:
+ *     summary: Get order by ID
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Order details
+ *       404:
+ *         description: Order not found
+ */
 router.route("/:id").get(protect, getOrderById);
+
+/**
+ * @swagger
+ * /api/orders/{id}/pay:
+ *   put:
+ *     summary: Update order to paid
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               update_time:
+ *                 type: string
+ *               payer:
+ *                 type: object
+ *                 properties:
+ *                   email_address:
+ *                     type: string
+ *     responses:
+ *       200:
+ *         description: Order updated to paid
+ *       404:
+ *         description: Order not found
+ */
 router.route("/:id/pay").put(protect, updateOrderToPaid);
+
+/**
+ * @swagger
+ * /api/orders/{id}/deliver:
+ *   put:
+ *     summary: Update order to delivered (Admin)
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Order updated to delivered
+ *       404:
+ *         description: Order not found
+ */
 router.route("/:id/deliver").put(protect, isAdmin, updateOrderToDelivered);
 
 export default router;
