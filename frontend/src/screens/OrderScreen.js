@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 import { Row, Col, Image, ListGroup, Card, Button } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { PayPalButton } from "react-paypal-button-v2";
@@ -17,8 +17,6 @@ import {
 } from "../constants/orderConstants";
 
 const OrderScreen = ({ history, match }) => {
-  const url = process.env.REACT_APP_BASE_URL;
-
   const [sdkready, setSDKReady] = useState(false);
 
   const orderId = match.params.id;
@@ -43,7 +41,7 @@ const OrderScreen = ({ history, match }) => {
     }
 
     const addPayPalScript = async () => {
-      const { data: clientId } = await axios.get(`${url}/api/config/paypal`);
+      const { data: clientId } = await api.get(`/api/config/paypal`);
       const script = document.createElement("script");
       script.type = "text/javascript";
       script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}`;
@@ -65,7 +63,7 @@ const OrderScreen = ({ history, match }) => {
         setSDKReady(true);
       }
     }
-  }, [dispatch, orderId, successPay, successDeliver, order, userInfo, history, url]);
+  }, [dispatch, orderId, successPay, successDeliver, order, userInfo, history]);
 
   if (!loading) {
     const addDecimals = (num) => {
@@ -156,6 +154,7 @@ const OrderScreen = ({ history, match }) => {
                               alt={item.name}
                               fluid
                               rounded
+                              loading="lazy"
                             />
                           </Col>
                           <Col md={7}>

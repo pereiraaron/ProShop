@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,10 +7,9 @@ import Loader from "../components/Loader";
 import FormContainer from "../components/FormContainer";
 import { listProductDetails, updateProduct } from "../actions/productActions";
 import { PRODUCT_UPDATE_RESET } from "../constants/productConstants";
+import api from "../api";
 
 const ProductEditScreen = ({ match, history }) => {
-  const url = process.env.REACT_APP_BASE_URL;
-
   const productId = match.params.id;
 
   const [name, setName] = useState("");
@@ -38,7 +36,7 @@ const ProductEditScreen = ({ match, history }) => {
   useEffect(() => {
     if (successUpdate) {
       dispatch({ type: PRODUCT_UPDATE_RESET });
-      history.push(`${url}/admin/productList`);
+      history.push("/admin/productlist");
     } else {
       if (!product.name || product._id !== productId) {
         dispatch(listProductDetails(productId));
@@ -52,7 +50,7 @@ const ProductEditScreen = ({ match, history }) => {
         setDescription(product.description);
       }
     }
-  }, [dispatch, history, productId, product, successUpdate, url]);
+  }, [dispatch, history, productId, product, successUpdate]);
 
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
@@ -60,13 +58,9 @@ const ProductEditScreen = ({ match, history }) => {
     formData.append("image", file);
     setUploading(true);
     try {
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      };
-
-      const { data } = await axios.post("/api/upload", formData, config);
+      const { data } = await api.post("/api/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       setImage(data);
       setUploading(false);
     } catch (error) {
@@ -76,10 +70,9 @@ const ProductEditScreen = ({ match, history }) => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    //UPDATE PRODUCT
     dispatch(
       updateProduct({
-        id: product.Id,
+        _id: product._id,
         name,
         price,
         image,
@@ -109,7 +102,7 @@ const ProductEditScreen = ({ match, history }) => {
             <Form.Group controlId="name" className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control
-                type="name"
+                type="text"
                 placeholder="Enter name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -134,13 +127,12 @@ const ProductEditScreen = ({ match, history }) => {
                 value={image}
                 onChange={(e) => setImage(e.target.value)}
               ></Form.Control>
-              <Form.File
+              <Form.Control
                 className="mb-3 mt-1"
+                type="file"
                 id="image-file"
-                // label="Choose File"
-                custom
                 onChange={uploadFileHandler}
-              ></Form.File>
+              />
               {uploading && <Loader />}
             </Form.Group>
 

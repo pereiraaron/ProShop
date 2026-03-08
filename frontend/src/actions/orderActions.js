@@ -18,36 +18,29 @@ import {
   ORDER_DELIVER_SUCCESS,
   ORDER_DELIVER_REQUEST,
 } from "../constants/orderConstants";
-import axios from "axios";
+import api from "../api";
+import getErrorMessage from "../utils/getErrorMessage";
 import { logout } from "./userActions";
-
-const url = process.env.REACT_APP_BASE_URL;
 
 export const createOrder = (order) => async (dispatch, getState) => {
   try {
     dispatch({ type: ORDER_CREATE_REQUEST });
 
-    //Equivalent to getState.userLogin.userInfo
     const {
       userLogin: { userInfo },
     } = getState();
 
-    const config = {
+    const { data } = await api.post(`/api/orders`, order, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${userInfo.token}`,
       },
-    };
-    const { data } = await axios.post(`${url}/api/orders`, order, config);
+    });
     dispatch({ type: ORDER_CREATE_SUCCESS, payload: data });
   } catch (error) {
-    console.log(error);
     dispatch({
       type: ORDER_CREATE_FAILURE,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.response,
+      payload: getErrorMessage(error),
     });
   }
 };
@@ -56,27 +49,21 @@ export const getOrderDetails = (id) => async (dispatch, getState) => {
   try {
     dispatch({ type: ORDER_DETAILS_REQUEST });
 
-    //Equivalent to getState.userLogin.userInfo
     const {
       userLogin: { userInfo },
     } = getState();
 
-    const config = {
+    const { data } = await api.get(`/api/orders/${id}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${userInfo.token}`,
       },
-    };
-    const { data } = await axios.get(`${url}/api/orders/${id}`, config);
+    });
     dispatch({ type: ORDER_DETAILS_SUCCESS, payload: data });
   } catch (error) {
-    console.log(error);
     dispatch({
       type: ORDER_DETAILS_FAILURE,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.response,
+      payload: getErrorMessage(error),
     });
   }
 };
@@ -86,144 +73,94 @@ export const payOrder =
     try {
       dispatch({ type: ORDER_PAY_REQUEST });
 
-      //Equivalent to getState.userLogin.userInfo
       const {
         userLogin: { userInfo },
       } = getState();
 
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-      const { data } = await axios.put(
-        `${url}/api/orders/${orderId}/pay`,
+      const { data } = await api.put(
+        `/api/orders/${orderId}/pay`,
         paymentResult,
-        config
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userInfo.token}`,
+          },
+        }
       );
       dispatch({ type: ORDER_PAY_SUCCESS, payload: data });
     } catch (error) {
-      console.log(error);
       dispatch({
         type: ORDER_PAY_FAILURE,
-        payload:
-          error.response && error.response.data.message
-            ? error.response.data.message
-            : error.response,
+        payload: getErrorMessage(error),
       });
     }
   };
 
 export const listMyOrders = () => async (dispatch, getState) => {
   try {
-    dispatch({
-      type: ORDER_LIST_MY_REQUEST,
-    });
+    dispatch({ type: ORDER_LIST_MY_REQUEST });
 
     const {
       userLogin: { userInfo },
     } = getState();
 
-    const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
-    };
-
-    const { data } = await axios.get(`${url}/api/orders/myorders`, config);
-
-    dispatch({
-      type: ORDER_LIST_MY_SUCCESS,
-      payload: data,
+    const { data } = await api.get(`/api/orders/myorders`, {
+      headers: { Authorization: `Bearer ${userInfo.token}` },
     });
+
+    dispatch({ type: ORDER_LIST_MY_SUCCESS, payload: data });
   } catch (error) {
-    const message =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.message;
+    const message = getErrorMessage(error);
     if (message === "Not authorized, token failed") {
       dispatch(logout());
     }
-    dispatch({
-      type: ORDER_LIST_MY_FAILURE,
-      payload: message,
-    });
+    dispatch({ type: ORDER_LIST_MY_FAILURE, payload: message });
   }
 };
 
 export const listOrders = () => async (dispatch, getState) => {
   try {
-    dispatch({
-      type: ORDER_LIST_REQUEST,
-    });
+    dispatch({ type: ORDER_LIST_REQUEST });
 
     const {
       userLogin: { userInfo },
     } = getState();
 
-    const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
-    };
-
-    const { data } = await axios.get(`${url}/api/orders`, config);
-
-    dispatch({
-      type: ORDER_LIST_SUCCESS,
-      payload: data,
+    const { data } = await api.get(`/api/orders`, {
+      headers: { Authorization: `Bearer ${userInfo.token}` },
     });
+
+    dispatch({ type: ORDER_LIST_SUCCESS, payload: data });
   } catch (error) {
-    const message =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.message;
+    const message = getErrorMessage(error);
     if (message === "Not authorized, token failed") {
       dispatch(logout());
     }
-    dispatch({
-      type: ORDER_LIST_FAILURE,
-      payload: message,
-    });
+    dispatch({ type: ORDER_LIST_FAILURE, payload: message });
   }
 };
 
 export const deliverOrder = (order) => async (dispatch, getState) => {
   try {
-    dispatch({
-      type: ORDER_DELIVER_REQUEST,
-    });
+    dispatch({ type: ORDER_DELIVER_REQUEST });
 
     const {
       userLogin: { userInfo },
     } = getState();
 
-    const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
-    };
-
-    const { data } = await axios.put(
-      `${url}/api/orders/${order._id}/deliver`,
+    const { data } = await api.put(
+      `/api/orders/${order._id}/deliver`,
       {},
-      config
+      {
+        headers: { Authorization: `Bearer ${userInfo.token}` },
+      }
     );
 
-    dispatch({
-      type: ORDER_DELIVER_SUCCESS,
-      payload: data,
-    });
+    dispatch({ type: ORDER_DELIVER_SUCCESS, payload: data });
   } catch (error) {
-    const message =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.message;
-
     dispatch({
       type: ORDER_DELIVER_FAILURE,
-      payload: message,
+      payload: getErrorMessage(error),
     });
   }
 };
