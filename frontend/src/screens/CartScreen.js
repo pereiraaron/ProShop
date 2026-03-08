@@ -48,12 +48,11 @@ const CartScreen = ({ match, location, history }) => {
         ) : (
           <ListGroup variant="flush">
             {cartItems.map((item) => {
-              console.log(item);
               return (
                 <ListGroup.Item key={item.product}>
                   <Row>
                     <Col md={2}>
-                      <Image src={item.image} alt={item.name} fluid rounded />
+                      <Image src={item.image} alt={item.name} fluid rounded loading="lazy" />
                     </Col>
                     <Col md={3}>
                       <Link to={`/product/${item.product}`}>{item.name}</Link>
@@ -110,7 +109,7 @@ const CartScreen = ({ match, location, history }) => {
             <ListGroup.Item>
               <Button
                 type="btn"
-                diabled={cartItems.length === 0}
+                disabled={cartItems.length === 0}
                 onClick={checkoutHandler}
                 style={{ width: "100%" }}
               >

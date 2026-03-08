@@ -94,6 +94,7 @@ const PlaceOrderScreen = ({ history }) => {
                               alt={item.name}
                               fluid
                               rounded
+                              loading="lazy"
                             />
                           </Col>
                           <Col md={7}>
