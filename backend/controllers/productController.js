@@ -1,10 +1,9 @@
-import asyncHandler from "express-async-handler";
 import Product from "../models/productModel.js";
 
-//@desc Fectch All Products
+//@desc Fetch All Products
 //@route GET /api/products
 //@access Public
-export const getProducts = asyncHandler(async (req, res) => {
+export const getProducts = async (req, res) => {
   const pageSize = 10;
   const page = Number(req.query.pageNumber) || 1;
 
@@ -19,16 +18,17 @@ export const getProducts = asyncHandler(async (req, res) => {
 
   const count = await Product.countDocuments({ ...keyword });
   const products = await Product.find({ ...keyword })
+    .lean()
     .limit(pageSize)
     .skip(pageSize * (page - 1));
 
   res.json({ page, pages: Math.ceil(count / pageSize), products });
-});
+};
 
-//@desc Fectch Single Product
+//@desc Fetch Single Product
 //@route GET /api/products/:id
 //@access Public
-export const getProductById = asyncHandler(async (req, res) => {
+export const getProductById = async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (product) {
     res.json(product);
@@ -36,30 +36,26 @@ export const getProductById = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Product Not Found");
   }
-});
+};
 
 //@desc Delete a Product(Admin)
-//@route GET /api/products/:id
-//@access Privalte
-export const deleteProduct = asyncHandler(async (req, res) => {
+//@route DELETE /api/products/:id
+//@access Private
+export const deleteProduct = async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (product) {
-    try {
-      await product.deleteOne();
-      res.json({ message: "Product removed" });
-    } catch (error) {
-      console.log(error);
-    }
+    await product.deleteOne();
+    res.json({ message: "Product removed" });
   } else {
     res.status(404);
     throw new Error("Product Not Found");
   }
-});
+};
 
 //@desc Create a Product(Admin)
 //@route POST /api/products
 //@access Private
-export const createProduct = asyncHandler(async (req, res) => {
+export const createProduct = async (req, res) => {
   const product = new Product({
     name: "Sample Name",
     price: 0,
@@ -74,12 +70,12 @@ export const createProduct = asyncHandler(async (req, res) => {
 
   const createdProduct = await product.save();
   res.status(201).json(createdProduct);
-});
+};
 
 //@desc Update a Product(Admin)
 //@route PUT /api/products/:id
 //@access Private
-export const updateProduct = asyncHandler(async (req, res) => {
+export const updateProduct = async (req, res) => {
   const { name, price, image, brand, category, countInStock, description } =
     req.body;
 
@@ -99,12 +95,12 @@ export const updateProduct = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Product Not Found");
   }
-});
+};
 
 //@desc Create new review
-//@route POST /api/products/:id/review
+//@route POST /api/products/:id/reviews
 //@access Private
-export const createProductReview = asyncHandler(async (req, res) => {
+export const createProductReview = async (req, res) => {
   const { rating, comment } = req.body;
 
   const product = await Product.findById(req.params.id);
@@ -140,13 +136,12 @@ export const createProductReview = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Product not found");
   }
-});
+};
 
 // @desc    Get top rated products
 // @route   GET /api/products/top
 // @access  Public
-export const getTopProducts = asyncHandler(async (req, res) => {
-  const products = await Product.find({}).sort({ rating: -1 }).limit(3);
-
+export const getTopProducts = async (req, res) => {
+  const products = await Product.find({}).sort({ rating: -1 }).limit(3).lean();
   res.json(products);
-});
+};
