@@ -1,16 +1,12 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import path from "path";
-import colors from "colors";
-import morgan from "morgan";
 import connectDB from "./config/db.js";
 import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
-import swaggerSpec from "./config/swagger.js";
 
 //Config and Connect DB
 dotenv.config();
@@ -19,10 +15,15 @@ connectDB();
 const app = express();
 
 //Use Predefined Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "*",
+  })
+);
 app.use(express.json());
 
 if (process.env.NODE_ENV === "development") {
+  const morgan = (await import("morgan")).default;
   app.use(morgan("dev"));
 }
 
@@ -38,8 +39,9 @@ app.use("/api/orders", orderRoutes);
 //Upload Routes
 app.use("/api/upload", uploadRoutes);
 
-//Swagger Docs
-app.get("/api/docs/spec.json", (_req, res) => {
+//Swagger Docs (lazy loaded)
+app.get("/api/docs/spec.json", async (_req, res) => {
+  const swaggerSpec = (await import("./config/swagger.js")).default;
   res.json(swaggerSpec);
 });
 app.get("/api/docs", (_req, res) => {
@@ -73,13 +75,9 @@ app.use(errorHandler);
 const port = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== "production") {
-  app.listen(
-    port,
-    console.log(
-      `Server Running in ${process.env.NODE_ENV} mode on port ${port}`.yellow
-        .bold
-    )
-  );
+  app.listen(port, () => {
+    console.log(`Server Running in ${process.env.NODE_ENV} mode on port ${port}`);
+  });
 }
 
 export default app;

@@ -74,5 +74,8 @@ const productSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+productSchema.index({ name: "text" });
+productSchema.index({ rating: -1 });
+
 const Product = mongoose.model("Product", productSchema);
 export default Product;

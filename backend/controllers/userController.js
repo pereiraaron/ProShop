@@ -1,14 +1,13 @@
-import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import generateToken from "../utils/generateToken.js";
 
 //@desc Auth User
 //@route POST /api/users/login
 //@access Public
-export const authUser = asyncHandler(async (req, res) => {
+export const authUser = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email: email });
+  const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
     res.json({
@@ -22,24 +21,20 @@ export const authUser = asyncHandler(async (req, res) => {
     res.status(401);
     throw new Error("Invalid email or password");
   }
-});
+};
 
 //@desc Register User
 //@route POST /api/users
 //@access Public
-export const registerUser = asyncHandler(async (req, res) => {
+export const registerUser = async (req, res) => {
   const { email, password, name } = req.body;
-  const userExists = await User.findOne({ email: email });
+  const userExists = await User.findOne({ email });
   if (userExists) {
     res.status(400);
     throw new Error("User Exists");
   }
 
-  const user = await User.create({
-    name: name,
-    email: email,
-    password: password,
-  });
+  const user = await User.create({ name, email, password });
 
   if (user) {
     res.status(201).json({
@@ -51,14 +46,14 @@ export const registerUser = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(400);
-    throw new Error("Inavlid User Data");
+    throw new Error("Invalid User Data");
   }
-});
+};
 
 //@desc Update User Profile
 //@route PUT /api/users/profile
 //@access Private
-export const updateUserProfile = asyncHandler(async (req, res) => {
+export const updateUserProfile = async (req, res) => {
   const user = await User.findById(req.user._id);
   if (user) {
     user.name = req.body.name || user.name;
@@ -77,14 +72,14 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(404);
-    throw new Error("User Not Fo  und");
+    throw new Error("User Not Found");
   }
-});
+};
 
 //@desc Get User Profile
-//@route POST /api/users/profile
+//@route GET /api/users/profile
 //@access Private
-export const getUserProfile = asyncHandler(async (req, res) => {
+export const getUserProfile = async (req, res) => {
   const user = await User.findById(req.user._id);
   if (user) {
     res.json({
@@ -95,23 +90,22 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(404);
-    throw new Error("User Not FOund");
+    throw new Error("User Not Found");
   }
-});
+};
 
 //@desc Get All users(Admin)
 //@route GET /api/users/
 //@access Private
-export const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({});
+export const getUsers = async (req, res) => {
+  const users = await User.find({}).select("-password").lean();
   res.json(users);
-});
+};
 
 //@desc Delete User(Admin)
 //@route DELETE /api/users/:id
 //@access Private
-
-export const deleteUser = asyncHandler(async (req, res) => {
+export const deleteUser = async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (user) {
@@ -119,27 +113,27 @@ export const deleteUser = asyncHandler(async (req, res) => {
     res.json({ message: "User removed" });
   } else {
     res.status(404);
-    throw new Error("User not found");
+    throw new Error("User Not Found");
   }
-});
+};
 
 //@desc Get User By Id(Admin)
 //@route GET /api/users/:id
 //@access Private
-export const getUserById = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id).select("-password");
+export const getUserById = async (req, res) => {
+  const user = await User.findById(req.params.id).select("-password").lean();
   if (user) {
     res.json(user);
   } else {
     res.status(404);
     throw new Error("User Not Found");
   }
-});
+};
 
 //@desc Update User (Admin)
 //@route PUT /api/users/:id
 //@access Private
-export const updateUser = asyncHandler(async (req, res) => {
+export const updateUser = async (req, res) => {
   const user = await User.findById(req.params.id);
   if (user) {
     user.name = req.body.name || user.name;
@@ -155,6 +149,6 @@ export const updateUser = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(404);
-    throw new Error("User Not Fo  und");
+    throw new Error("User Not Found");
   }
-});
+};
